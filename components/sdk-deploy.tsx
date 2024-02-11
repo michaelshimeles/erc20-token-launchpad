@@ -9,7 +9,7 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ThirdwebSDK, useSDK, useWallet } from "@thirdweb-dev/react"
+import { ThirdwebSDK, useAddress, useSDK, useWallet } from "@thirdweb-dev/react"
 import { Loader2 } from 'lucide-react'
 import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -36,7 +36,9 @@ type MintFormInput = z.infer<typeof MintFormSchema>
 
 export function SdkDeploy() {
     const sdk = useSDK();
-    const { refetch } = useGetAddress()
+    const address = useAddress()
+
+    const { refetch } = useGetAddress(address!)
 
     const [loading, setIsLoading] = useState<boolean>(false)
     const { register, handleSubmit, watch, formState: { errors, isSubmitting }, reset, } = useForm<MintFormInput>({
@@ -56,7 +58,6 @@ export function SdkDeploy() {
             // platform_fees_percentage,
         } = data
 
-        console.log('data', data)
         try {
 
             const deployedAddress = sdk?.deployer.deployTokenDrop({
@@ -67,9 +68,8 @@ export function SdkDeploy() {
             });
 
             const contract_address = await deployedAddress
-            await storeAddress(data?.name, data?.symbol, contract_address!)
+            await storeAddress(data?.name, data?.symbol, contract_address!, address!)
 
-            // console.log('deployed', await deployedAddress)
             setIsLoading(false)
             refetch()
             return contract_address

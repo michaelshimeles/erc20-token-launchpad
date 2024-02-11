@@ -48,7 +48,10 @@ type MintFormInput = z.infer<typeof MintFormSchema>
 
 const phaseSchema = z.object({
     contract_address: z.string(),
+    maxClaimable: z.string(),
+    price: z.string(),
     phase: z.string(),
+    maxClaimablePerWallet: z.string(),
 })
 
 type phaseInput = z.infer<typeof phaseSchema>
@@ -73,8 +76,6 @@ export function Phases({ contract_address }: any) {
     const sdk = useSDK()
 
     const { data: phases, refetch: refetchPhases } = useGetPhases(contract_address)
-
-    console.log("phases", phases)
 
     const form = useForm<z.infer<typeof MintFormSchema>>({
         resolver: zodResolver(MintFormSchema),
@@ -113,14 +114,13 @@ export function Phases({ contract_address }: any) {
         if (phases?.[0]?.phases) {
             const response = await updatePhase(contract_address, [...phases?.[0]?.phases, data?.phase])
 
-            console.log('response', response)
             resetPhase()
             refetchPhases()
             return response
         }
 
         const response = await createPhase(contract_address, data?.phase)
-        console.log('response', response)
+
         resetPhase()
         refetchPhases()
         return response
@@ -129,7 +129,7 @@ export function Phases({ contract_address }: any) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline">Phases</Button>
+                <Button variant="outline">Customize</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
@@ -141,19 +141,33 @@ export function Phases({ contract_address }: any) {
                 <Tabs defaultValue="account" className="w-full">
                     <TabsList className="w-full">
                         <TabsTrigger className="w-full" value="phases">Phases</TabsTrigger>
-                        <TabsTrigger className="w-full" value="setup">Setup</TabsTrigger>
+                        <TabsTrigger className="w-full" value="edit">Edit Phases</TabsTrigger>
                     </TabsList>
                     <TabsContent value="phases">
                         <form ref={form as any} onSubmit={handleSubmitPhase(onSubmitPhases)}>
                             <div className="flex flex-col w-full justify-center items-end gap-4 mt-6">
                                 <div className="flex flex-col gap-2 justify-center items-start w-full">
+                                    <Label>Contract Address</Label>
                                     <Input {...registerPhase("contract_address", { required: true })} placeholder="Contract Name" value={contract_address} />
                                 </div>
                                 <div className="flex flex-col gap-2 justify-center items-start w-full">
+                                    <Label>Phase Name</Label>
                                     <Input  {...registerPhase("phase", { required: true })} placeholder="Phase Name" />
                                 </div>
+                                <div className="flex flex-col gap-2 justify-center items-start w-full">
+                                    <Label>Max Claimable Supply</Label>
+                                    <Input {...register("maxClaimable", { required: true })} defaultValue="10000000" />
+                                </div>
+                                <div className="flex flex-col gap-2 justify-center items-start w-full">
+                                    <Label>Price</Label>
+                                    <Input {...register("price", { required: true })} defaultValue="0.01" />
+                                </div>
+                                <div className="flex flex-col gap-2 justify-center items-start w-full">
+                                    <Label>Max Claimable Per Wallet</Label>
+                                    <Input {...register("maxClaimablePerWallet", { required: true })} defaultValue="1000" />
+                                </div>
                                 <div className="flex gap-2 w-full">
-                                    {phases?.[0]?.phases?.map((phase: any, index: number) => (
+                                    {/* {phases && phases?.[0]?.phases?.map((phase: any, index: number) => (
                                         <ContextMenu key={index}>
                                             <ContextMenuTrigger>
                                                 <Badge variant="outline" key={index}>{phase}</Badge>
@@ -173,13 +187,13 @@ export function Phases({ contract_address }: any) {
                                             </ContextMenuContent>
                                         </ContextMenu>
 
-                                    ))}
+                                    ))} */}
                                 </div>
-                                <Button type="submit" variant="outline">Confirm Phase</Button>
+                                <Button type="submit" variant="outline">Create Phase</Button>
                             </div>
                         </form>
                     </TabsContent>
-                    <TabsContent value="setup" className="w-full mt-6">
+                    <TabsContent value="edit" className="w-full mt-6">
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <div className="flex flex-col w-full justify-center items-end gap-4">
                                 <Select {...register("phase", { required: true })}>
@@ -187,10 +201,9 @@ export function Phases({ contract_address }: any) {
                                         <SelectValue placeholder="Phase" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {phases?.[0]?.phases?.map((phase: any, index: number) => (
+                                        {/* {phases && phases?.[0]?.phases?.map((phase: any, index: number) => (
                                             <SelectItem key={index} value={phase}>{phase}</SelectItem>
-                                        ))}
-
+                                        ))} */}
                                     </SelectContent>
                                 </Select>
                                 <div className="flex flex-col gap-2 justify-center items-start w-full">

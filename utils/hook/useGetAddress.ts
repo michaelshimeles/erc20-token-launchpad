@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { readAddress } from "../db/readAddress";
 
-async function fetchTemplate() {
+async function fetchAddress(address: string) {
   try {
-    const response: any = await readAddress();
+    const response: any = await readAddress(address);
 
     return response;
   } catch (error) {
@@ -11,9 +11,9 @@ async function fetchTemplate() {
   }
 }
 
-export const useGetAddress = () => {
+export const useGetAddress = (address: string) => {
   return useQuery({
-    queryKey: ["get-address"],
-    queryFn: () => fetchTemplate(),
+    queryKey: ["get-address", address],
+    queryFn: () => fetchAddress(address),
   });
 };

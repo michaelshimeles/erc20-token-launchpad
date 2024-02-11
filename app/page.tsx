@@ -12,7 +12,12 @@ export default function Home() {
       <div className="flex justify-center items-center gap-2">
         <SdkDeploy />
       </div>
-      <ContractCard />
+      <div className="flex flex-col justify-center items-start w-full mt-8">
+        <h2 className="mt-10 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight transition-colors first:mt-0 w-full">
+          Launched ERC-20 Token(s)
+        </h2>
+        <ContractCard />
+      </div>
     </main>
   );
 }
