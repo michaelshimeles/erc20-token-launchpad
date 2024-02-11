@@ -27,7 +27,7 @@ export default function ContractCard() {
                         {/* <Link href={`https://goerli.etherscan.io/address/${info?.contract_address}`} target='_blank'>
                             <Button>Contract</Button>
                         </Link> */}
-                        <Phases contract_address={info?.contract_address}/>
+                        <Phases contract_address={info?.contract_address!}/>
                     </CardFooter>
                 </Card>
             ))}

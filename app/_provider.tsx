@@ -17,7 +17,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
 
         <ThirdwebProvider
             activeChain="goerli"
-            clientId="2d0806b43f43b6c62d350a3ccd3d009a"
+            clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID}
             locale={en()}
             // signer={}
             supportedWallets={[

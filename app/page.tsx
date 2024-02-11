@@ -1,7 +1,5 @@
 "use client"
 import ContractCard from "@/components/ContractCard";
-import { MintForm } from "@/components/form/mint";
-import { Phases } from "@/components/form/phases";
 import { SdkDeploy } from "@/components/sdk-deploy";
 
 export default function Home() {
@@ -12,7 +10,6 @@ export default function Home() {
         Thirdweb Demo
       </h1>
       <div className="flex justify-center items-center gap-2">
-        {/* <MintForm /> */}
         <SdkDeploy />
       </div>
       <ContractCard />

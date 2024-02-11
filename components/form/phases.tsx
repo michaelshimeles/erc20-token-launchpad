@@ -1,5 +1,12 @@
 "use client"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuTrigger
+} from "@/components/ui/context-menu"
 import {
     Dialog,
     DialogContent,
@@ -9,89 +16,120 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog"
 import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form"
-import { useGetAddress } from "@/utils/hook/useGetAddress"
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { createPhase } from "@/utils/db/createPhases"
+import { updatePhase } from "@/utils/db/updatePhase"
+import { useGetPhases } from "@/utils/hook/useGetPhases"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useSDK } from "@thirdweb-dev/react"
+import { Loader2 } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Input } from "../ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Label } from "../ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { useToast } from "../ui/use-toast"
-import { Loader2 } from "lucide-react"
 
 const MintFormSchema = z.object({
     contract_address: z.string(),
-    maxClaimableSupply: z.string(),
-    startTime: z.string(),
+    maxClaimable: z.string(),
     price: z.string(),
-    currencyAddress: z.string(),
+    phase: z.string(),
     maxClaimablePerWallet: z.string(),
 })
 
 type MintFormInput = z.infer<typeof MintFormSchema>
 
+const phaseSchema = z.object({
+    contract_address: z.string(),
+    phase: z.string(),
+})
 
-export function Phases({ contract_address }: string) {
+type phaseInput = z.infer<typeof phaseSchema>
+
+
+
+export function Phases({ contract_address }: any) {
 
     const { register, handleSubmit, watch, formState: { errors, isSubmitting }, reset, } = useForm<MintFormInput>({
         resolver: zodResolver(MintFormSchema),
-        defaultValues: {
-            contract_address: '', // default value as empty string instead of undefined
-            maxClaimableSupply: '0', // assuming a string is expected
-            startTime: '',
-            price: '',
-            currencyAddress: '',
-            maxClaimablePerWallet: '',
-        },
+    });
 
+    const { register: registerPhase, handleSubmit: handleSubmitPhase, watch: watchPhase, formState: { errors: errorsPhase, isSubmitting: isSubmittingPhase }, reset: resetPhase, } = useForm<phaseInput>({
+        resolver: zodResolver(phaseSchema),
     });
     const [loading, setIsLoading] = useState<boolean>(false)
+    const [confirmed, setConfirmed] = useState<boolean>(false)
     const [claimConditions, setClaimConditions] = useState<any>(null)
 
     const { toast } = useToast()
 
     const sdk = useSDK()
-    const { data } = useGetAddress()
+
+    const { data: phases, refetch: refetchPhases } = useGetPhases(contract_address)
+
+    console.log("phases", phases)
 
     const form = useForm<z.infer<typeof MintFormSchema>>({
         resolver: zodResolver(MintFormSchema),
     })
 
     function onSubmit(data: z.infer<typeof MintFormSchema>) {
-        console.log('data', data)
+        const formattedData = {
+            maxClaimable: Number(data.maxClaimable),
+            price: Number(data.price),
+            maxClaimablePerWallet: Number(data.maxClaimablePerWallet),
+        };
         setClaimConditions([
             {
-                startTime: data?.startTime, // start the presale now
-                maxClaimableSupply: data?.maxClaimableSupply, // limit how many mints for this presale
-                price: data?.price, // presale price
-                snapshot: [], // limit minting to only certain addresses
-
+                startTime: new Date(),
+                maxClaimableSupply: formattedData.maxClaimable,
+                price: formattedData.price,
+                snapshot: [],
             },
-        ])
+        ]);
+
+        setConfirmed(true);
+
         toast({
             title: "You submitted the following values:",
             description: (
                 <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+                    <code className="text-white">{JSON.stringify(formattedData, null, 2)}</code>
                 </pre>
             ),
-        })
+        });
+        reset()
     }
 
+    async function onSubmitPhases(data: z.infer<typeof phaseSchema>) {
+
+        if (phases?.[0]?.phases) {
+            const response = await updatePhase(contract_address, [...phases?.[0]?.phases, data?.phase])
+
+            console.log('response', response)
+            resetPhase()
+            refetchPhases()
+            return response
+        }
+
+        const response = await createPhase(contract_address, [data?.phase])
+        console.log('response', response)
+        resetPhase()
+        refetchPhases()
+        return response
+    }
 
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline">Setup Claim</Button>
+                <Button variant="outline">Phases</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
@@ -100,132 +138,105 @@ export function Phases({ contract_address }: string) {
                         Setup your token with claim conditions.
                     </DialogDescription>
                 </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
-                        <FormField
-                            control={form.control}
-                            name="contract_address"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Contract Address</FormLabel>
-                                    <Input defaultValue={contract_address} {...field} />
-                                    <FormDescription>
-                                        Set the claim conditions of the contract address you select.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="maxClaimableSupply"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Max Claimable Supply</FormLabel>
-                                    <Input defaultValue={field.value} {...field} />
-                                    <FormDescription>
-                                        Set the max claimable supply.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="startTime"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Start Time</FormLabel>
-                                    <Input {...field} />
-                                    <p className="text-sm">{new Date().toISOString()}</p>
-                                    <FormDescription>
-                                        Set the mint start time.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="price"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Price</FormLabel>
-                                    <Input defaultValue={field.value} {...field} />
-                                    <FormDescription>
-                                        Set the price per token.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="currencyAddress"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Currency Address</FormLabel>
-                                    <Input defaultValue={field.value} {...field} />
-                                    <FormDescription>
-                                        The currency address which you&apos;ll receive payment in.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="maxClaimablePerWallet"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Max Claimable Per Wallet</FormLabel>
-                                    <Input defaultValue={field.value} {...field} />
-                                    <FormDescription>
-                                        Set the max claimable per wallet.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div className="flex justify-first items-center w-full gap-2">
-                            <Button type="submit" variant="outline">Confirm Contract</Button>
-                            <Button
-                                type="submit"
-                                disabled={loading}
-                                onClick={async () => {
-                                    setIsLoading(true)
-                                    try {
-                                        const contract = await sdk?.getContract(contract_address)
+                <Tabs defaultValue="account" className="w-full">
+                    <TabsList className="w-full">
+                        <TabsTrigger className="w-full" value="phases">Phases</TabsTrigger>
+                        <TabsTrigger className="w-full" value="setup">Setup</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="phases">
+                        <form ref={form as any} onSubmit={handleSubmitPhase(onSubmitPhases)}>
+                            <div className="flex flex-col w-full justify-center items-end gap-4 mt-6">
+                                <div className="flex flex-col gap-2 justify-center items-start w-full">
+                                    <Input {...registerPhase("contract_address", { required: true })} placeholder="Contract Name" value={contract_address} />
+                                </div>
+                                <div className="flex flex-col gap-2 justify-center items-start w-full">
+                                    <Input  {...registerPhase("phase", { required: true })} placeholder="Phase Name" />
+                                </div>
+                                <div className="flex gap-2 w-full">
+                                    {phases?.[0]?.phases?.map((phase: any, index: number) => (
+                                        <ContextMenu>
+                                            <ContextMenuTrigger>
+                                                <Badge variant="outline" key={index}>{phase}</Badge>
+                                            </ContextMenuTrigger>
+                                            <ContextMenuContent>
+                                                <ContextMenuItem onClick={async () => {
+                                                    const newPhaseList = phases?.[0]?.phases?.filter((selectedPhase: any) => {
+                                                        return phase !== selectedPhase
+                                                    })
+                                                    const response = await updatePhase(contract_address, newPhaseList)
 
-                                        const response = await contract?.erc20?.claimConditions.set(claimConditions)
+                                                    console.log('response', response)
+                                                    refetchPhases()
+                                                    return response
 
-                                        console.log('response', response)
-                                        setIsLoading(false)
-                                        return response
-                                    } catch (error) {
-                                        console.log('error', error)
-                                        setIsLoading(false)
-                                        return error
-                                    }
-                                    // const result = await contract?.sales.setRecipient("0x944C9EF3Ca71E710388733E6C57974e8923A9020");
-                                    // const address = "0x944C9EF3Ca71E710388733E6C57974e8923A9020"; // address of the wallet you want to claim the NFTs
-                                    // const quantity = 1000; // how many tokens you want to claim
-                                    // await contract?.call("setMaxTotalSupply", [1000000])
+                                                }}>Delete Phase</ContextMenuItem>
+                                            </ContextMenuContent>
+                                        </ContextMenu>
 
-                                    // const tx = await contract?.erc20.claimTo(address, quantity)
-                                    // const receipt = tx?.receipt; // the transaction receipt
+                                    ))}
+                                </div>
+                                <Button type="submit" variant="outline">Confirm Phase</Button>
+                            </div>
+                        </form>
+                    </TabsContent>
+                    <TabsContent value="setup" className="w-full mt-6">
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <div className="flex flex-col w-full justify-center items-end gap-4">
+                                <Select {...register("phase", { required: true })}>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Phase" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {phases?.[0]?.phases?.map((phase: any, index: number) => (
+                                            <SelectItem key={index} value={phase}>{phase}</SelectItem>
+                                        ))}
 
+                                    </SelectContent>
+                                </Select>
+                                <div className="flex flex-col gap-2 justify-center items-start w-full">
+                                    <Label>Contract Name</Label>
+                                    <Input {...register("contract_address", { required: true })} value={contract_address} />
+                                </div>
+                                <div className="flex flex-col gap-2 justify-center items-start w-full">
+                                    <Label>Max Claimable Supply</Label>
+                                    <Input {...register("maxClaimable", { required: true })} defaultValue="10000000" />
+                                </div>
+                                <div className="flex flex-col gap-2 justify-center items-start w-full">
+                                    <Label>Price</Label>
+                                    <Input {...register("price", { required: true })} defaultValue="0.01" />
+                                </div>
+                                <div className="flex flex-col gap-2 justify-center items-start w-full">
+                                    <Label>Max Claimable Per Wallet</Label>
+                                    <Input {...register("maxClaimablePerWallet", { required: true })} defaultValue="1000" />
+                                </div>
+                            </div>
+                            <div className="flex justify-first items-center w-full gap-2 mt-3">
+                                <Button type="submit" disabled={confirmed} variant="outline">{!confirmed ? "Confirm Contract" : "Confirmed"}</Button>
+                                <Button
+                                    type="submit"
+                                    disabled={loading}
+                                    onClick={async () => {
+                                        setIsLoading(true)
+                                        try {
+                                            const contract = await sdk?.getContract(contract_address)
 
-                                    // const response = await contract?.erc20?.claimConditions.set(claimConditions)
-                                    // const response = setClaimConditions(claimConditions)
-                                    // console.log('receipt', receipt)
-                                }}>
-                                {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait</> : "Set Claim Conditions"}
-                            </Button>
-                        </div>
-                    </form>
-                </Form>
+                                            const response = await contract?.erc20?.claimConditions.set(claimConditions)
+
+                                            setIsLoading(false)
+                                            return response
+                                        } catch (error) {
+                                            console.log('error', error)
+                                            setIsLoading(false)
+                                            return error
+                                        }
+                                    }}>
+                                    {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait</> : "Set Claim Conditions"}
+                                </Button>
+                            </div>
+                        </form>
+                    </TabsContent>
+                </Tabs>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     )
 }
