@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/navigation-menu"
 import { cn } from "@/lib/utils"
 import { ConnectWallet } from "@thirdweb-dev/react"
-import { AreaChart } from "lucide-react"
+import { AreaChart, Gem } from "lucide-react"
 import Link from "next/link"
 import * as React from "react"
 import { ModeToggle } from "./ModeToggle"
@@ -14,11 +14,11 @@ import { ModeToggle } from "./ModeToggle"
 export function NavBar() {
 
     return (
-        <div className="flex min-w-full justify-between p-2 border-b z-10">
+        <div className="flex min-w-full justify-between p-2 z-10">
             <NavigationMenu>
                 <NavigationMenuList className="max-[825px]:hidden ">
                     <Link href="/" className="pl-2">
-                        <AreaChart />
+                        <Gem />
                     </Link>
                 </NavigationMenuList>
             </NavigationMenu>
