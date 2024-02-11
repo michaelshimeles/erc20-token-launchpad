@@ -119,7 +119,7 @@ export function Phases({ contract_address }: any) {
             return response
         }
 
-        const response = await createPhase(contract_address, [data?.phase])
+        const response = await createPhase(contract_address, data?.phase)
         console.log('response', response)
         resetPhase()
         refetchPhases()
@@ -154,7 +154,7 @@ export function Phases({ contract_address }: any) {
                                 </div>
                                 <div className="flex gap-2 w-full">
                                     {phases?.[0]?.phases?.map((phase: any, index: number) => (
-                                        <ContextMenu>
+                                        <ContextMenu key={index}>
                                             <ContextMenuTrigger>
                                                 <Badge variant="outline" key={index}>{phase}</Badge>
                                             </ContextMenuTrigger>

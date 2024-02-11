@@ -63,7 +63,7 @@ export function MintForm() {
             console.log('response', response)
 
             if (response?.result) {
-                await storeAddress(data?.name, data?.symbol, response?.result?.deployedAddress, response?.result?.queueId)
+                await storeAddress(data?.name, data?.symbol, response?.result?.deployedAddress)
                 refetch()
             }
 

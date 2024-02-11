@@ -6,7 +6,6 @@ export const storeAddress = async (
   name: string,
   symbol: string,
   contract_address: string,
-  queue_id: string
 ) => {
   const supabase = createServerComponentClient({ cookies });
 
