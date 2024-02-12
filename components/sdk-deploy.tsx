@@ -68,7 +68,7 @@ export function SdkDeploy() {
             });
 
             const contract_address = await deployedAddress
-            await storeAddress(data?.name, data?.symbol, contract_address!, address!)
+            await storeAddress(data?.name, data?.symbol, contract_address!, address!, description)
 
             setIsLoading(false)
             refetch()

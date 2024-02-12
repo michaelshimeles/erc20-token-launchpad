@@ -1,6 +1,6 @@
 import { useGetAddress } from '@/utils/hook/useGetAddress'
 import { Phases } from './form/phases'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card'
 import { Label } from './ui/label'
 import { useAddress } from '@thirdweb-dev/react'
 import { Badge } from './ui/badge'
@@ -22,7 +22,7 @@ export default function ContractCard() {
                 <Card key={info?.id} className='hover:border-gray-100 hover:cursor-pointer'>
                     <CardHeader>
                         <CardTitle className='text-md'>{info?.name} ({info?.symbol})</CardTitle>
-                        {/* <CardDescription>{info?.contract_address}</CardDescription> */}
+                        <CardDescription>{info?.description}</CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col justify-between items-start gap-5">
                         <div className='flex flex-col gap-2'>

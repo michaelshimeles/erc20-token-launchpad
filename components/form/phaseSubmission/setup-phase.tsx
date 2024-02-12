@@ -40,7 +40,6 @@ export default function SetupPhase({ contract_address }: any) {
 
     const { data: phases, refetch: refetchPhases } = useGetPhases(contract_address)
 
-
     const form = useForm<MintFormInput>({
         resolver: zodResolver(MintFormSchema),
     });

@@ -6,14 +6,15 @@ export const storeAddress = async (
   name: string,
   symbol: string,
   contract_address: string,
-  address: string
+  address: string,
+  description: string
 ) => {
   const supabase = createServerComponentClient({ cookies });
 
   try {
     const { data, error } = await supabase
       .from("deployment")
-      .insert([{ name, symbol, contract_address, wallet_address: address }])
+      .insert([{ name, symbol, contract_address, wallet_address: address, description }])
       .select();
 
     if (error?.code) return error;
