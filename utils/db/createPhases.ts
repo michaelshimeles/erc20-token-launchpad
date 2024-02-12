@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 
 export const createPhase = async (
   contract_address: string,
-  phases: string
+  phases: string[]
 ) => {
   const supabase = createServerComponentClient({ cookies });
 
