@@ -8,12 +8,10 @@ import {
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog"
+import { storeAddress } from "@/utils/db/storeAddress"
+import { useGetAddress } from "@/utils/hook/useGetAddress"
 import { zodResolver } from "@hookform/resolvers/zod"
-<<<<<<< HEAD
-import { ThirdwebSDK, useAddress, useSDK, useWallet } from "@thirdweb-dev/react"
-=======
-import { ThirdwebSDK, useAddress, useSDK, useSetClaimConditions, useWallet } from "@thirdweb-dev/react"
->>>>>>> 457ea7b (Added coin setup)
+import { useAddress, useSDK } from "@thirdweb-dev/react"
 import { Loader2 } from 'lucide-react'
 import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -21,8 +19,6 @@ import { z } from "zod"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Textarea } from "./ui/textarea"
-import { storeAddress } from "@/utils/db/storeAddress"
-import { useGetAddress } from "@/utils/hook/useGetAddress"
 
 export const Icons = {
     spinner: Loader2,
@@ -113,24 +109,6 @@ export function SdkDeploy() {
                             <Textarea {...register("description", { required: true })} placeholder="Jesus Christ is The Way, The Truth and The Life" />
                             {errors?.description?.message && <p className="text-red-500 text-sm">{errors.description.message}</p>}
                         </div>
-<<<<<<< HEAD
-                        {/* <div className="flex flex-col gap-2 justify-center items-start w-full">
-                            <Label>Primary Sale Receipt</Label>
-                            <Input {...register("primary_sale_recipient", { required: true })} placeholder="0x..." />
-                            {errors?.primary_sale_recipient?.message && <p className="text-red-500 text-sm">{errors.primary_sale_recipient.message}</p>}
-                        </div>
-                        <div className="flex flex-col gap-2 justify-center items-start w-full">
-                            <Label>Primary Fees Receipt</Label>
-                            <Input {...register("platform_fees_recipient", { required: true })} placeholder="0x..." />
-                            {errors?.platform_fees_recipient?.message && <p className="text-red-500 text-sm">{errors.platform_fees_recipient.message}</p>}
-                        </div>
-                        <div className="flex flex-col gap-2 justify-center items-start w-full">
-                            <Label>Primary Fee %</Label>
-                            <Input {...register("platform_fees_percentage", { required: true })} placeholder="5%" />
-                            {errors?.platform_fees_percentage?.message && <p className="text-red-500 text-sm">{errors.platform_fees_percentage.message}</p>}
-                        </div> */}
-=======
->>>>>>> 457ea7b (Added coin setup)
                         <Button type="submit" disabled={loading} className="mt-3 w-full">{!loading ? "Save changes" : "Cooking..."}</Button>
                     </div>
                 </form>
