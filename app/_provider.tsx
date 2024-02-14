@@ -9,7 +9,6 @@ import {
     rainbowWallet,
     walletConnect
 } from "@thirdweb-dev/react";
-import { ThirdwebSDKProvider } from "@thirdweb-dev/react";
 
 export default function Provider({ children }: { children: React.ReactNode }) {
 

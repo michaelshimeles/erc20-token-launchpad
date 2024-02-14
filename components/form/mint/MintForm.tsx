@@ -1,7 +1,4 @@
 "use client"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -9,20 +6,16 @@ import {
     FormDescription,
     FormField,
     FormItem,
-    FormLabel,
-    FormMessage,
+    FormMessage
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useAddress, useClaimToken, useContract, useSDK } from "@thirdweb-dev/react"
-import { useState } from "react"
-import { useGetAddress } from "@/utils/hook/useGetAddress"
 import Link from "next/link"
-import {
-    Alert,
-    AlertDescription,
-    AlertTitle,
-} from "@/components/ui/alert"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 
 const FormSchema = z.object({
     amount: z.string(),
