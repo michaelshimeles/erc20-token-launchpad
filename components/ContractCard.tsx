@@ -10,12 +10,22 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+<<<<<<< HEAD
+=======
+import Link from 'next/link'
+import { Button } from './ui/button'
+>>>>>>> 457ea7b (Added coin setup)
 
 export default function ContractCard() {
     const address = useAddress()
 
     const { data } = useGetAddress(address!)
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 457ea7b (Added coin setup)
     return (
         <div className='flex justify-start items-center w-full mt-9 gap-3 flex-wrap'>
             {data?.map((info: any) => (
@@ -45,7 +55,18 @@ export default function ContractCard() {
                     </CardContent>
                     <CardFooter className='flex justify-between items-center w-full gap-3'>
                         <Badge>ERC20</Badge>
+<<<<<<< HEAD
                         <Phases contract_address={info?.contract_address!} />
+=======
+                        <div className='flex justify-start items-center gap-2'>
+                            <Phases contract_address={info?.contract_address!} />
+                            <Link href={`/mint/${info?.contract_address}`}>
+                                <Button>
+                                    Mint
+                                </Button>
+                            </Link>
+                        </div>
+>>>>>>> 457ea7b (Added coin setup)
                     </CardFooter>
                 </Card>
             ))}
