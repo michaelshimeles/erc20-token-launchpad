@@ -33,7 +33,7 @@ export default function CreatePhase({ contract_address }: any) {
         });
 
     async function onSubmit(data: z.infer<typeof phaseSchema>) {
-        if (phases?.[0]?.phases) {
+        if (data?.phase !== "" && phases?.[0]?.phases) {
             const response = await updatePhase(contract_address, [...phases?.[0]?.phases, data?.phase])
 
             resetPhase()
