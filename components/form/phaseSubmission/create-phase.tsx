@@ -39,15 +39,19 @@ export default function CreatePhase({ contract_address }: any) {
         if (data?.phase !== "" && phases?.[0]?.phases) {
             const response = await updatePhase(contract_address, [...phases?.[0]?.phases, data?.phase])
 
-            resetPhase()
             refetchPhases()
+            resetPhase()
             return response
+        }
+
+        if (data?.phase === "") {
+            return
         }
 
         const response = await createPhase(contract_address, [data?.phase])
 
-        resetPhase()
         refetchPhases()
+        resetPhase()
         return response
     }
 

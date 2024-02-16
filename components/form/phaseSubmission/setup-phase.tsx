@@ -54,6 +54,7 @@ export default function SetupPhase({ contract_address }: any) {
     async function onSubmit(data: z.infer<typeof MintFormSchema>) {
         setConfirmed(true);
 
+
         console.log('data', data?.whitelist?.split(','))
 
         let snapshot = data?.whitelist?.split(',')
@@ -84,17 +85,24 @@ export default function SetupPhase({ contract_address }: any) {
                 snapshot: finalSnapshot,
             }
 
-            await createPhaseInfo([...phasesInfo], contract_address);
+            try {
+                const response = await createPhaseInfo([...phasesInfo], contract_address);
 
-            toast({
-                title: "Phase has been set",
-                description: "You can setup your next phase or confirm all the phases in the next step",
-            });
+                toast({
+                    title: "Phase has been set",
+                    description: "You can setup your next phase or confirm all the phases in the next step",
+                });
 
-            form.reset()
+                form.reset()
 
-            setConfirmed(false);
-            return
+                setConfirmed(false);
+                return response
+
+            } catch (error) {
+
+                console.log('error', error)
+                return error
+            }
 
         }
 
@@ -127,17 +135,23 @@ export default function SetupPhase({ contract_address }: any) {
             return
         }
 
-        await createPhaseInfo([...claimConditions?.phases], contract_address);
+        try {
 
-        toast({
-            title: "Phase has been set",
-            description: "You can setup your next phase or confirm all the phases in the next step",
-        });
+            const response = await createPhaseInfo([...claimConditions?.phases], contract_address);
 
-        form.reset()
+            toast({
+                title: "Phase has been set",
+                description: "You can setup your next phase or confirm all the phases in the next step",
+            });
 
-        setConfirmed(false);
-        return
+            form.reset()
+
+            setConfirmed(false);
+            return response
+        } catch (error) {
+            console.log('error', error)
+            return error
+        }
     }
 
 
