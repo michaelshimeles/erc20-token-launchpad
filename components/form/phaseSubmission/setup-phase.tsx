@@ -54,8 +54,94 @@ export default function SetupPhase({ contract_address }: any) {
     async function onSubmit(data: z.infer<typeof MintFormSchema>) {
         setConfirmed(true);
 
+        if (data?.whitelist === "") {
+            let response = phases?.[0]?.phases_info?.some((info: any) => info?.metadata?.name === data?.phase);
 
-        console.log('data', data?.whitelist?.split(','))
+            if (response) {
+                const replaceIndex = phases?.[0]?.phases_info?.findIndex((info: any) => info?.metadata?.name === data?.phase);
+
+                let phasesInfo = phases?.[0]?.phases_info
+
+                phasesInfo[replaceIndex] = {
+                    metadata: {
+                        name: data?.phase, // The name of the phase
+                    },
+                    price: data?.price, // The price of the token in the currency specified above
+                    maxClaimablePerWallet: data?.maxClaimablePerWallet, // The maximum number of tokens a wallet can claim
+                    maxClaimableSupply: data?.maxClaimableSupply, // The total number of tokens that can be claimed in this phase
+                    startTime: date, // When the phase starts (i.e. when users can start claiming tokens)
+                }
+
+                try {
+                    const response = await createPhaseInfo([...phasesInfo], contract_address);
+
+                    toast({
+                        title: "Phase has been set",
+                        description: "You can setup your next phase or confirm all the phases in the next step",
+                    });
+
+                    form.reset()
+
+                    refetchPhases()
+                    setConfirmed(false);
+                    return response
+
+                } catch (error) {
+
+                    console.log('error', error)
+                    refetchPhases()
+                    return error
+                }
+
+            }
+
+            const claimConditions = {
+                phases: [
+                    {
+                        metadata: {
+                            name: data?.phase, // The name of the phase
+                        },
+                        price: data?.price, // The price of the token in the currency specified above
+                        maxClaimablePerWallet: data?.maxClaimablePerWallet, // The maximum number of tokens a wallet can claim
+                        maxClaimableSupply: data?.maxClaimableSupply, // The total number of tokens that can be claimed in this phase
+                        startTime: date, // When the phase starts (i.e. when users can start claiming tokens)
+                        // currencyAddress: "0x...", // The address of the currency you want users to pay in
+                        // waitInSeconds: 60 * 60 * 24 * 7, // The period of time users must wait between repeat claims
+                    }
+                ],
+            };
+
+            if (phases?.[0]?.phases_info) {
+                await createPhaseInfo([...phases?.[0]?.phases_info, ...claimConditions?.phases], contract_address);
+                toast({
+                    title: "Phase has been set",
+                    description: "You can setup your next phase or confirm all the phases in the next step",
+                });
+                form.reset()
+                setConfirmed(false);
+
+                return
+            }
+
+            try {
+
+                const response = await createPhaseInfo([...claimConditions?.phases], contract_address);
+
+                toast({
+                    title: "Phase has been set",
+                    description: "You can setup your next phase or confirm all the phases in the next step",
+                });
+
+                form.reset()
+
+                setConfirmed(false);
+                return response
+            } catch (error) {
+                console.log('error', error)
+                return error
+            }
+        }
+
 
         let snapshot = data?.whitelist?.split(',')
 
@@ -95,8 +181,8 @@ export default function SetupPhase({ contract_address }: any) {
 
                 form.reset()
 
-                setConfirmed(false);
                 refetchPhases()
+                setConfirmed(false);
                 return response
 
             } catch (error) {
