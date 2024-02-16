@@ -8,6 +8,7 @@ import {
     ContextMenuTrigger
 } from "@/components/ui/context-menu"
 import { Input } from "@/components/ui/input"
+import { createPhaseInfo } from "@/utils/db/createPhaseInfo"
 import { createPhase } from "@/utils/db/createPhases"
 import { updatePhase } from "@/utils/db/updatePhase"
 import { useGetPhases } from "@/utils/hook/useGetPhases"
@@ -26,6 +27,8 @@ type phaseInput = z.infer<typeof phaseSchema>
 export default function CreatePhase({ contract_address }: any) {
 
     const { data: phases, refetch: refetchPhases } = useGetPhases(contract_address)
+
+    console.log('phases', phases)
 
     const { register, handleSubmit, watch,
         formState: { errors: errorsPhase, isSubmitting }, reset: resetPhase, } = useForm<phaseInput>({
@@ -70,7 +73,15 @@ export default function CreatePhase({ contract_address }: any) {
                                     })
                                     const response = await updatePhase(contract_address, newPhaseList)
 
-                                    console.log('response', response)
+                                    // update phase info
+                                    const replaceIndex = phases?.[0]?.phases_info?.findIndex((info: any) => info?.metadata?.name === phase);
+
+                                    let phasesInfo = phases?.[0]?.phases_info
+
+                                    phasesInfo.splice(replaceIndex, 1)
+
+                                    await createPhaseInfo([...phasesInfo], contract_address);
+
                                     refetchPhases()
                                     return response
 

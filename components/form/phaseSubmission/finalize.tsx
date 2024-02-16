@@ -17,7 +17,7 @@ export default function Finalize({ contract_address }: any) {
 
     return (
         <div className="flex flex-col justify-center items-start w-full gap-3">
-            {phases?.[0]?.phases_info ? phases?.[0]?.phases_info?.map((info: any, index: number) =>
+            {phases?.[0]?.phases_info && phases?.[0]?.phases_info?.length ? phases?.[0]?.phases_info?.map((info: any, index: number) =>
             (<div key={index} className="flex flex-col border p-4 rounded-md py-3 w-full drop-shadow-md gap-1">
                 <p className="text-sm">Phase: <span className="font-semibold">{info?.metadata?.name}</span></p>
                 {/* <Badge>{info?.metadata?.name}</Badge> */}
