@@ -96,11 +96,13 @@ export default function SetupPhase({ contract_address }: any) {
                 form.reset()
 
                 setConfirmed(false);
+                refetchPhases()
                 return response
 
             } catch (error) {
 
                 console.log('error', error)
+                refetchPhases()
                 return error
             }
 
