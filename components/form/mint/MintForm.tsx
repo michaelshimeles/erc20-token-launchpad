@@ -129,8 +129,8 @@ export function MintForm({ contract_address }: any) {
                             </FormItem>
                         )}
                     />
-                    {claimConditions?.map((info: any) => (
-                        <div className="my-3">
+                    {claimConditions?.map((info: any, index: number) => (
+                        <div className="my-3" key={index}>
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <Badge>{info?.metadata.name}</Badge>
