@@ -1,6 +1,12 @@
-"use client"
-import ContractCard from "@/components/ContractCard";
-import { SdkDeploy } from "@/components/sdk-deploy";
+import dynamic from "next/dynamic";
+
+const ContractCard = dynamic(() => import("@/components/ContractCard"), {
+  ssr: false,
+});
+
+const SdkDeploy = dynamic(() => import("@/components/sdk-deploy"), {
+  ssr: false,
+});
 
 export default function Home() {
 

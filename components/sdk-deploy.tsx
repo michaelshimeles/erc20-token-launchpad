@@ -34,7 +34,7 @@ const MintFormSchema = z.object({
 
 type MintFormInput = z.infer<typeof MintFormSchema>
 
-export function SdkDeploy() {
+export default function SdkDeploy({}) {
     const sdk = useSDK();
     const address = useAddress()
 

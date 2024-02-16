@@ -1,3 +1,4 @@
+"use client"
 import { useGetAddress } from '@/utils/hook/useGetAddress'
 import { Phases } from './form/phases'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card'

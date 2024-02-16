@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { useGetTokenInfo } from "@/utils/hook/useGetTokenInfo"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useAddress, useClaimConditions, useClaimToken, useContract, useSDK, useTokenBalance, useTokenSupply } from "@thirdweb-dev/react"
+import { useActiveClaimConditionForWallet, useAddress, useClaimConditions, useClaimIneligibilityReasons, useClaimToken, useClaimerProofs, useConnectionStatus, useContract, useSDK, useTokenBalance, useTokenSupply } from "@thirdweb-dev/react"
 import Link from "next/link"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -30,6 +30,13 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 const FormSchema = z.object({
     amount: z.string(),
 })
@@ -44,10 +51,10 @@ interface tokenInfoType {
     description: string
 }
 
-export function MintForm({ contract_address }: any) {
+export default function MintForm({ contract_address }: { contract_address: string }) {
     const [loading, setLoading] = useState<boolean>(false)
     const address = useAddress()
-    const [progress, setProgress] = useState(13)
+    const connectionStatus = useConnectionStatus();
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -60,16 +67,21 @@ export function MintForm({ contract_address }: any) {
 
     const { mutateAsync: claimToken, isLoading, error, } = useClaimToken(contract);
 
-
     const { data: tokenBalanceData, isLoading: tokenBalanceisLoading, error: tokenBalanceError } = useTokenBalance(contract, address);
 
     console.log('tokenBalanceData', tokenBalanceData)
 
-    // const { data: tokenSupplyData } = useTokenSupply(contract);
     const { data: claimConditions } = useClaimConditions(contract);
 
     console.log('claimConditions', claimConditions)
 
+    const { data: ActiveClaimData } = useActiveClaimConditionForWallet(
+        contract,
+        address,
+    );
+
+
+    console.log('ActiveClaimData', ActiveClaimData)
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         setLoading(true)
@@ -103,14 +115,21 @@ export function MintForm({ contract_address }: any) {
         }
     }
 
-    console.log("math", Number(claimConditions?.[0]?.maxClaimableSupply) - Number(claimConditions?.[0]?.availableSupply))
-
     return (
         <div className="flex flex-col w-full justify-center item-center max-w-[400px] gap-2">
             <div className="flex items-center w-full justify-start gap-2">Wallet Balance: {tokenBalanceData?.displayValue ? tokenBalanceData?.displayValue + " " + tokenBalanceData?.symbol : <Skeleton className="h-3.5 w-[250px]" />} </div>
-            <div className="flex items-center gap-2">Available Supply: {claimConditions?.[0]?.availableSupply ? claimConditions?.[0]?.availableSupply + " " + tokenBalanceData?.symbol : <Skeleton className="h-3.5 w-[250px]" />} </div>
+            <div className="flex items-center gap-2">Available Supply: {claimConditions?.[0]?.availableSupply + "/" + claimConditions?.[0]?.maxClaimableSupply} </div>
             <div className="my-2">
-                <Progress className="h-[10px]" value={(Number(claimConditions?.[0]?.maxClaimableSupply) - Number(claimConditions?.[0]?.availableSupply)) / 100} />
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Progress className="h-[10px]" value={(Number(claimConditions?.[0]?.maxClaimableSupply) - Number(claimConditions?.[0]?.availableSupply)) / 100} />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <div>{(Number(claimConditions?.[0]?.maxClaimableSupply) - Number(claimConditions?.[0]?.availableSupply)) / 100}%</div>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
@@ -120,10 +139,12 @@ export function MintForm({ contract_address }: any) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>
-                                    <Input placeholder="1000" {...field} />
+                                    <div className="flex justify-center items-center gap-2">
+                                        <Input placeholder="1000" {...field} />
+                                    </div>
                                 </FormControl>
                                 <FormDescription>
-                                    Enter amount of tokens you&apos;d like to mint
+                                    Remaining Mint Amount: {claimConditions?.[0]?.maxClaimablePerWallet ? Number(claimConditions?.[0]?.maxClaimablePerWallet) - Number(tokenBalanceData?.displayValue) + " " + tokenBalanceData?.symbol : <Skeleton className="h-3.5 w-[250px]" />}
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -163,7 +184,7 @@ export function MintForm({ contract_address }: any) {
                         </div>
                     ))}
                     <div className="flex w-full justify-end">
-                        <Button className="w-full" variant="outline" disabled={loading} type="submit">{!loading ? "Mint" : "Minting..."}</Button>
+                        <Button className="w-full" variant="outline" disabled={connectionStatus !== "connected"} type="submit">{!loading ? "Mint" : "Minting..."}</Button>
                     </div>
                 </form>
             </Form>
