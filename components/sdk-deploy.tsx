@@ -109,6 +109,10 @@ export function SdkDeploy() {
                             <Textarea {...register("description", { required: true })} placeholder="Jesus Christ is The Way, The Truth and The Life" />
                             {errors?.description?.message && <p className="text-red-500 text-sm">{errors.description.message}</p>}
                         </div>
+                        <div className="flex flex-col gap-2 justify-center items-start w-full">
+                            <Label htmlFor="picture">Token Image</Label>
+                            <Input id="picture" type="file" />
+                        </div>
                         <Button type="submit" disabled={loading} className="mt-3 w-full">{!loading ? "Save changes" : "Cooking..."}</Button>
                     </div>
                 </form>
