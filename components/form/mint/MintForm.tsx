@@ -36,6 +36,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useGetPhases } from "@/utils/hook/useGetPhases"
 
 const FormSchema = z.object({
     amount: z.string(),
@@ -63,6 +64,8 @@ export default function MintForm({ contract_address }: { contract_address: strin
         },
     })
 
+    const { data: phases } = useGetPhases(contract_address)
+
     const { contract, data, isFetching } = useContract(contract_address!);
 
     const { mutateAsync: claimToken, isLoading, error, } = useClaimToken(contract);
@@ -79,7 +82,9 @@ export default function MintForm({ contract_address }: { contract_address: strin
         contract,
         address,
     );
+    const { data: tokenSupplyData, isLoading: tokenDataIsLoading, error: tokenDataError } = useTokenSupply(contract);
 
+    console.log('tokenSupplyData', tokenSupplyData)
 
     console.log('ActiveClaimData', ActiveClaimData)
 
@@ -115,10 +120,13 @@ export default function MintForm({ contract_address }: { contract_address: strin
         }
     }
 
+
+
     return (
         <div className="flex flex-col w-full justify-center item-center max-w-[400px] gap-2">
             <div className="flex items-center w-full justify-start gap-2">Wallet Balance: {tokenBalanceData?.displayValue ? tokenBalanceData?.displayValue + " " + tokenBalanceData?.symbol : <Skeleton className="h-3.5 w-[250px]" />} </div>
-            <div className="flex items-center gap-2">Available Supply: {claimConditions?.[0]?.availableSupply + "/" + claimConditions?.[0]?.maxClaimableSupply} </div>
+            <div className="flex items-center w-full justify-start gap-2">Max Supply: {phases ? phases?.[0]?.total_supply.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " " + tokenSupplyData?.symbol : <Skeleton className="h-3.5 w-[250px]" />} </div>
+            <div className="flex items-center gap-2">Available Supply: {claimConditions?.[0]?.availableSupply + "/" + phases?.[0]?.total_supply.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} </div>
             <div className="my-2">
                 <TooltipProvider>
                     <Tooltip>
@@ -150,9 +158,9 @@ export default function MintForm({ contract_address }: { contract_address: strin
                             </FormItem>
                         )}
                     />
-                    {claimConditions?.map((info: any, index: number) => (
-                        <div className="my-3" key={index}>
-                            <Dialog>
+                    <div className="flex flex-wrap justify-start items-center my-3 w-full gap-2">
+                        {claimConditions?.map((info: any, index: number) => (
+                            <Dialog key={index}>
                                 <DialogTrigger asChild>
                                     <Badge>{info?.metadata.name}</Badge>
                                 </DialogTrigger>
@@ -181,8 +189,8 @@ export default function MintForm({ contract_address }: { contract_address: strin
                                     </div>
                                 </DialogContent>
                             </Dialog>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                     <div className="flex w-full justify-end">
                         <Button className="w-full" variant="outline" disabled={connectionStatus !== "connected"} type="submit">{!loading ? "Mint" : "Minting..."}</Button>
                     </div>

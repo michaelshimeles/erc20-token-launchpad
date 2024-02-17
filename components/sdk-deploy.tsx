@@ -11,7 +11,7 @@ import {
 import { storeAddress } from "@/utils/db/storeAddress"
 import { useGetAddress } from "@/utils/hook/useGetAddress"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useAddress, useSDK } from "@thirdweb-dev/react"
+import { useAddress, useSDK, useStorageUpload } from "@thirdweb-dev/react"
 import { Loader2 } from 'lucide-react'
 import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -27,6 +27,7 @@ const MintFormSchema = z.object({
     name: z.string(),
     symbol: z.string(),
     description: z.string(),
+    image: z.any()
     // primary_sale_recipient: z.string(),
     // platform_fees_recipient: z.string(),
     // platform_fees_percentage: z.string(),
@@ -34,11 +35,22 @@ const MintFormSchema = z.object({
 
 type MintFormInput = z.infer<typeof MintFormSchema>
 
-export default function SdkDeploy({}) {
+export default function SdkDeploy({ }) {
     const sdk = useSDK();
     const address = useAddress()
 
     const { refetch } = useGetAddress(address!)
+
+    const { mutateAsync: upload, isLoading } = useStorageUpload();
+
+    async function uploadData(file: any) {
+        const filesToUpload = [...file]
+
+        const uris = await upload({ data: filesToUpload });
+
+        console.log(uris);
+        return uris
+    }
 
     const [loading, setIsLoading] = useState<boolean>(false)
     const { register, handleSubmit, watch, formState: { errors, isSubmitting }, reset, } = useForm<MintFormInput>({
@@ -50,6 +62,9 @@ export default function SdkDeploy({}) {
     const onSubmit = async (data: z.infer<typeof MintFormSchema>) => {
         setIsLoading(true)
 
+        const response = await uploadData(data?.image)
+
+        console.log('response', response)
         const { name,
             symbol,
             description,
@@ -68,7 +83,7 @@ export default function SdkDeploy({}) {
             });
 
             const contract_address = await deployedAddress
-            await storeAddress(data?.name, data?.symbol, contract_address!, address!, description)
+            await storeAddress(data?.name, data?.symbol, contract_address!, address!, description, response?.[0])
 
             setIsLoading(false)
             refetch()
@@ -111,7 +126,8 @@ export default function SdkDeploy({}) {
                         </div>
                         <div className="flex flex-col gap-2 justify-center items-start w-full">
                             <Label htmlFor="picture">Token Image</Label>
-                            <Input id="picture" type="file" />
+                            <Input {...register("image", { required: true })} id="picture" type="file" accept="image/*" />
+                            {/* {errors?.image?.message && <p className="text-red-500 text-sm">{errors.image.message}</p>} */}
                         </div>
                         <Button type="submit" disabled={loading} className="mt-3 w-full">{!loading ? "Save changes" : "Cooking..."}</Button>
                     </div>
