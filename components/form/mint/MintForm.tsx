@@ -78,11 +78,6 @@ export default function MintForm({ contract_address }: { contract_address: strin
 
     // console.log('claimConditions', claimConditions)
 
-    const { data: ActiveClaimData } = useActiveClaimConditionForWallet(
-        contract,
-        address,
-    );
-
     const { data: tokenSupplyData, isLoading: tokenDataIsLoading, error: tokenDataError } = useTokenSupply(contract);
 
     // console.log('tokenSupplyData', tokenSupplyData)
@@ -136,12 +131,14 @@ export default function MintForm({ contract_address }: { contract_address: strin
                     {tokenInfo?.[0]?.symbol}
                 </p>
             </div>
-            <p className="leading-7">
+            <p className="leading-7 my-4">
                 {tokenInfo?.[0]?.description}
             </p>
             {/* <div className="flex items-center w-full justify-start gap-2">Your Balance: {tokenBalanceData?.displayValue ? tokenBalanceData?.displayValue + " " + tokenBalanceData?.symbol : <Skeleton className="h-3.5 w-[250px]" />} </div> */}
-            <div className="flex items-center gap-2">Available Supply: {tokenSupplyData?.displayValue + "/" + phases?.[0]?.total_supply?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} </div>
-            <div className="my-2">
+            <div className="flex items-center w-full gap-2">
+                {tokenSupplyData?.displayValue + "/" + phases?.[0]?.total_supply}
+            </div>
+            <div>
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
