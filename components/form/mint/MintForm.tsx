@@ -72,21 +72,25 @@ export default function MintForm({ contract_address }: { contract_address: strin
 
     const { data: tokenBalanceData, isLoading: tokenBalanceisLoading, error: tokenBalanceError } = useTokenBalance(contract, address);
 
-    console.log('tokenBalanceData', tokenBalanceData)
+    // console.log('tokenBalanceData', tokenBalanceData)
 
     const { data: claimConditions } = useClaimConditions(contract);
 
-    console.log('claimConditions', claimConditions)
+    // console.log('claimConditions', claimConditions)
 
     const { data: ActiveClaimData } = useActiveClaimConditionForWallet(
         contract,
         address,
     );
+
     const { data: tokenSupplyData, isLoading: tokenDataIsLoading, error: tokenDataError } = useTokenSupply(contract);
 
-    console.log('tokenSupplyData', tokenSupplyData)
+    // console.log('tokenSupplyData', tokenSupplyData)
 
-    console.log('ActiveClaimData', ActiveClaimData)
+
+    const { data: tokenInfo } = useGetTokenInfo(contract_address) as any
+
+    console.log('tokenInfo', tokenInfo)
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         setLoading(true)
@@ -120,27 +124,80 @@ export default function MintForm({ contract_address }: { contract_address: strin
         }
     }
 
-
+    const currentTime = new Date()
 
     return (
-        <div className="flex flex-col w-full justify-center item-center max-w-[400px] gap-2">
-            <div className="flex items-center w-full justify-start gap-2">Wallet Balance: {tokenBalanceData?.displayValue ? tokenBalanceData?.displayValue + " " + tokenBalanceData?.symbol : <Skeleton className="h-3.5 w-[250px]" />} </div>
-            <div className="flex items-center w-full justify-start gap-2">Max Supply: {phases ? phases?.[0]?.total_supply.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " " + tokenSupplyData?.symbol : <Skeleton className="h-3.5 w-[250px]" />} </div>
-            <div className="flex items-center gap-2">Available Supply: {claimConditions?.[0]?.availableSupply + "/" + phases?.[0]?.total_supply.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} </div>
+        <div className="flex flex-col w-full justify-center item-center max-w-[515px] gap-2">
+            <div className="flex gap-3">
+                <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+                    {tokenInfo?.[0]?.name}
+                </h1>
+                <p className="leading-7">
+                    {tokenInfo?.[0]?.symbol}
+                </p>
+            </div>
+            <p className="leading-7">
+                {tokenInfo?.[0]?.description}
+            </p>
+            {/* <div className="flex items-center w-full justify-start gap-2">Your Balance: {tokenBalanceData?.displayValue ? tokenBalanceData?.displayValue + " " + tokenBalanceData?.symbol : <Skeleton className="h-3.5 w-[250px]" />} </div> */}
+            <div className="flex items-center gap-2">Available Supply: {tokenSupplyData?.displayValue + "/" + phases?.[0]?.total_supply?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} </div>
             <div className="my-2">
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Progress className="h-[10px]" value={(Number(claimConditions?.[0]?.maxClaimableSupply) - Number(claimConditions?.[0]?.availableSupply)) / 100} />
+                            <div className="flex items-center gap-2">
+                                <Progress className="h-[10px]" value={(Number(tokenSupplyData?.displayValue) / Number(phases?.[0]?.total_supply)) * 100} />
+                                <p>{Math.round((Number(tokenSupplyData?.displayValue) / Number(phases?.[0]?.total_supply)) * 100)}%</p>
+                            </div>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <div>{(Number(claimConditions?.[0]?.maxClaimableSupply) - Number(claimConditions?.[0]?.availableSupply)) / 100}%</div>
+                            <div>{(Number(tokenSupplyData?.displayValue) / Number(phases?.[0]?.total_supply)) * 100}%</div>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
             </div>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+                    <p className="leading-7">
+                        Phases:
+                    </p>
+                    <div className="flex flex-wrap justify-start items-center my-3 w-full gap-2">
+                        {claimConditions?.map((info: any, index: number) => (
+                            <Dialog key={index}>
+                                <DialogTrigger asChild>
+                                    <Badge className={currentTime > info?.startTime && (claimConditions?.[index + 1] ? currentTime < claimConditions?.[index + 1]?.startTime : true) ? "bg-green-400" : ""}>{info?.metadata.name}</Badge>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>{info?.metadata.name} phase</DialogTitle>
+                                        <DialogDescription>
+                                            Here are the details of the phase.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                                        <Label className="text-sm">Start Time</Label>
+                                        <Input readOnly value={new Date(info?.startTime).toLocaleDateString() + " " + new Date(info?.startTime).toLocaleTimeString()} />
+                                    </div>
+                                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                                        <Label className="text-sm">Max Claimable Per Wallet</Label>
+                                        <Input readOnly value={info?.maxClaimablePerWallet} />
+                                    </div>
+                                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                                        <Label className="text-sm">Available Supply</Label>
+                                        <Input readOnly value={info?.availableSupply} />
+                                    </div>
+                                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                                        <Label className="text-sm">Total Supply</Label>
+                                        <Input readOnly value={info?.maxClaimableSupply} />
+                                    </div>
+                                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                                        <Label className="text-sm">Price</Label>
+                                        <Input readOnly value={info?.currencyMetadata?.displayValue} />
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                        ))}
+                    </div>
                     <FormField
                         control={form.control}
                         name="amount"
@@ -151,52 +208,30 @@ export default function MintForm({ contract_address }: { contract_address: strin
                                         <Input placeholder="1000" {...field} />
                                     </div>
                                 </FormControl>
-                                <FormDescription>
-                                    Remaining Mint Amount: {claimConditions?.[0]?.maxClaimablePerWallet ? Number(claimConditions?.[0]?.maxClaimablePerWallet) - Number(tokenBalanceData?.displayValue) + " " + tokenBalanceData?.symbol : <Skeleton className="h-3.5 w-[250px]" />}
-                                </FormDescription>
+                                {/* <FormDescription>
+                                    Mint phases:
+                                </FormDescription> */}
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
-                    <div className="flex flex-wrap justify-start items-center my-3 w-full gap-2">
-                        {claimConditions?.map((info: any, index: number) => (
-                            <Dialog key={index}>
-                                <DialogTrigger asChild>
-                                    <Badge>{info?.metadata.name}</Badge>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>{info?.metadata.name} phase</DialogTitle>
-                                        <DialogDescription>
-                                            Here are the details of the phase.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="grid w-full max-w-sm items-center gap-1.5">
-                                        <Label className="text-sm text-gray-300">Max Claimable Per Wallet</Label>
-                                        <Input readOnly value={info?.maxClaimablePerWallet} />
-                                    </div>
-                                    <div className="grid w-full max-w-sm items-center gap-1.5">
-                                        <Label className="text-sm text-gray-300">Available Supply</Label>
-                                        <Input readOnly value={info?.availableSupply} />
-                                    </div>
-                                    <div className="grid w-full max-w-sm items-center gap-1.5">
-                                        <Label className="text-sm text-gray-300">Total Supply</Label>
-                                        <Input readOnly value={info?.maxClaimableSupply} />
-                                    </div>
-                                    <div className="grid w-full max-w-sm items-center gap-1.5">
-                                        <Label className="text-sm text-gray-300">Price</Label>
-                                        <Input readOnly value={info?.currencyMetadata?.displayValue} />
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                        ))}
+                    <div className="flex w-full justify-end mt-5">
+                        <Button
+                            className="w-full"
+                            disabled={connectionStatus !== "connected" || (claimConditions?.[0]?.availableSupply === phases?.[0]?.total_supply)}
+                            type="submit"
+                        >
+                            {
+                                connectionStatus !== "connected" ? "Mint" :
+                                    claimConditions?.[0]?.availableSupply === phases?.[0]?.total_supply ? "Minted out" :
+                                        loading ? "Minting..." : "Mint"
+                            }
+                        </Button>
                     </div>
-                    <div className="flex w-full justify-end">
-                        <Button className="w-full" variant="outline" disabled={connectionStatus !== "connected"} type="submit">{!loading ? "Mint" : "Minting..."}</Button>
-                    </div>
+
                 </form>
             </Form>
-        </div>
+        </div >
 
     )
 }
