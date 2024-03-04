@@ -19,6 +19,7 @@ import { z } from "zod"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Textarea } from "./ui/textarea"
+import { useToast } from "./ui/use-toast"
 
 export const Icons = {
     spinner: Loader2,
@@ -40,6 +41,7 @@ export default function SdkDeploy({ }) {
     const address = useAddress()
 
     const { refetch } = useGetAddress(address!)
+    const { toast } = useToast()
 
     const { mutateAsync: upload, isLoading } = useStorageUpload();
 
@@ -85,12 +87,23 @@ export default function SdkDeploy({ }) {
             const contract_address = await deployedAddress
             await storeAddress(data?.name, data?.symbol, contract_address!, address!, description, response?.[0])
 
+            toast({
+                title: "Mint created",
+            })
             setIsLoading(false)
             refetch()
+            reset()
             return contract_address
-        } catch (error) {
+        } catch (error: any) {
             console.log('error', error)
+            toast({
+                title: error?.message,
+                description: error?.data?.message,
+                variant: "destructive"
+            })
+
             setIsLoading(false)
+            reset()
             return error
         }
     }
@@ -104,7 +117,7 @@ export default function SdkDeploy({ }) {
                 <DialogHeader>
                     <DialogTitle>Deploy ERC-20</DialogTitle>
                     <DialogDescription>
-                        Setup your token with claim conditions.
+                        Let&apos;s start with some basic token information.
                     </DialogDescription>
                 </DialogHeader>
                 <form ref={form as any} onSubmit={handleSubmit(onSubmit)}>
@@ -127,7 +140,6 @@ export default function SdkDeploy({ }) {
                         <div className="flex flex-col gap-2 justify-center items-start w-full">
                             <Label htmlFor="picture">Token Image</Label>
                             <Input {...register("image", { required: true })} id="picture" type="file" accept="image/*" />
-                            {/* {errors?.image?.message && <p className="text-red-500 text-sm">{errors.image.message}</p>} */}
                         </div>
                         <Button type="submit" disabled={loading} className="mt-3 w-full">{!loading ? "Save changes" : "Cooking..."}</Button>
                     </div>

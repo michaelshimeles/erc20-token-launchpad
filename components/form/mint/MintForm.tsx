@@ -1,42 +1,40 @@
 "use client"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@/components/ui/dialog"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormMessage
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/use-toast"
-import { useGetTokenInfo } from "@/utils/hook/useGetTokenInfo"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useActiveClaimConditionForWallet, useAddress, useClaimConditions, useClaimIneligibilityReasons, useClaimToken, useClaimerProofs, useConnectionStatus, useContract, useSDK, useTokenBalance, useTokenSupply } from "@thirdweb-dev/react"
-import Link from "next/link"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Progress } from "@/components/ui/progress"
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { toast } from "@/components/ui/use-toast"
 import { useGetPhases } from "@/utils/hook/useGetPhases"
+import { useGetTokenInfo } from "@/utils/hook/useGetTokenInfo"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useAddress, useClaimConditions, useClaimToken, useConnectionStatus, useContract, useTokenBalance, useTokenSupply } from "@thirdweb-dev/react"
+import Link from "next/link"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { Loader2 } from 'lucide-react';
 
 const FormSchema = z.object({
     amount: z.string(),
@@ -51,6 +49,11 @@ interface tokenInfoType {
     wallet_address: string,
     description: string
 }
+
+export const Icons = {
+    spinner: Loader2,
+};
+
 
 export default function MintForm({ contract_address }: { contract_address: string }) {
     const [loading, setLoading] = useState<boolean>(false)
@@ -121,8 +124,16 @@ export default function MintForm({ contract_address }: { contract_address: strin
 
     const currentTime = new Date()
 
+    if (!tokenSupplyData?.displayValue) {
+        return (
+            <div className="flex flex-col justify-center items-center">
+                <Icons.spinner className="h-4 w-4 animate-spin" />
+            </div>
+        )
+    }
+
     return (
-        <div className="flex flex-col w-full justify-center item-center max-w-[515px] gap-2">
+        <div className="flex flex-col justify-center item-center w-[515px] gap-2">
             <div className="flex gap-3">
                 <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
                     {tokenInfo?.[0]?.name}
@@ -144,7 +155,7 @@ export default function MintForm({ contract_address }: { contract_address: strin
                         <TooltipTrigger asChild>
                             <div className="flex items-center gap-2">
                                 <Progress className="h-[10px]" value={(Number(tokenSupplyData?.displayValue) / Number(phases?.[0]?.total_supply)) * 100} />
-                                <p>{Math.round((Number(tokenSupplyData?.displayValue) / Number(phases?.[0]?.total_supply)) * 100)}%</p>
+                                <p>{tokenSupplyData?.displayValue ? Math.round((Number(tokenSupplyData?.displayValue) / Number(phases?.[0]?.total_supply)) * 100) : 0}%</p>
                             </div>
                         </TooltipTrigger>
                         <TooltipContent>
