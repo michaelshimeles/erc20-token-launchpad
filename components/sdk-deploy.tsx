@@ -11,7 +11,7 @@ import {
 import { storeAddress } from "@/utils/db/storeAddress"
 import { useGetAddress } from "@/utils/hook/useGetAddress"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useAddress, useSDK, useStorageUpload } from "@thirdweb-dev/react"
+import { ConnectWallet, useAddress, useSDK, useStorageUpload, useConnectionStatus } from "@thirdweb-dev/react"
 import { Loader2 } from 'lucide-react'
 import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -42,6 +42,7 @@ export default function SdkDeploy({ }) {
 
     const { refetch } = useGetAddress(address!)
     const { toast } = useToast()
+    const connectionStatus = useConnectionStatus();
 
     const { mutateAsync: upload, isLoading } = useStorageUpload();
 
@@ -106,6 +107,17 @@ export default function SdkDeploy({ }) {
             reset()
             return error
         }
+    }
+
+    if (connectionStatus !== "connected") {
+        return (
+            <ConnectWallet
+                theme={"dark"}
+                auth={{ loginOptional: false }}
+                switchToActiveChain={true}
+                modalSize={"compact"}
+            />
+        )
     }
 
     return (
