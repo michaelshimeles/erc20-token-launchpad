@@ -28,9 +28,9 @@ export default async function MintPage({ params }: { params: { id: string } }) {
 function convertIPFSToViewableLink(ipfsLink: string) {
     // Check if the link starts with the IPFS protocol
     if (ipfsLink.startsWith('ipfs://')) {
-      // Replace the IPFS protocol with the IPFS gateway URL
-      return ipfsLink.replace('ipfs://', 'https://ipfs.io/ipfs/');
+        // Replace the IPFS protocol with the IPFS gateway URL
+        return ipfsLink.replace('ipfs://', 'https://ipfs.io/ipfs/');
     }
     // Return the original link if it doesn't start with the IPFS protocol
     return ipfsLink;
-  }
+}

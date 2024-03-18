@@ -83,12 +83,11 @@ export default function MintForm({ contract_address }: { contract_address: strin
 
     const { data: tokenSupplyData, isLoading: tokenDataIsLoading, error: tokenDataError } = useTokenSupply(contract);
 
-    // console.log('tokenSupplyData', tokenSupplyData)
+    console.log('tokenSupplyData', tokenSupplyData)
 
 
     const { data: tokenInfo } = useGetTokenInfo(contract_address) as any
 
-    console.log('tokenInfo', tokenInfo)
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         setLoading(true)
@@ -124,13 +123,13 @@ export default function MintForm({ contract_address }: { contract_address: strin
 
     const currentTime = new Date()
 
-    if (!tokenSupplyData?.displayValue) {
-        return (
-            <div className="flex flex-col justify-center items-center">
-                <Icons.spinner className="h-4 w-4 animate-spin" />
-            </div>
-        )
-    }
+    // if (!tokenSupplyData?.displayValue) {
+    //     return (
+    //         <div className="flex flex-col justify-center items-center">
+    //             <Icons.spinner className="h-4 w-4 animate-spin" />
+    //         </div>
+    //     )
+    // }
 
     return (
         <div className="flex flex-col justify-center item-center w-[515px] gap-2">
