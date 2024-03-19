@@ -123,7 +123,7 @@ export default function SdkDeploy({ }) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline" size="lg">Deploy ERC-20</Button>
+                <Button variant="outline" size="lg">Deploy</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
