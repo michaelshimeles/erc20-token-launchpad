@@ -1,10 +1,9 @@
+import MintForm from "@/components/form/mint/MintForm";
+import { Skeleton } from "@/components/ui/skeleton";
 import { readTokenInfo } from "@/utils/db/readTokenInfo";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-
-const MintForm = dynamic(() => import("@/components/form/mint/MintForm"), {
-    ssr: false,
-});
+import { Suspense } from "react";
 
 export default async function MintPage({ params }: { params: { id: string } }) {
 
@@ -17,9 +16,11 @@ export default async function MintPage({ params }: { params: { id: string } }) {
             {/* <div className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
                 {response?.[0]?.name} <span className="text-sm">Token Mint</span>
             </div> */}
-            <div className="flex justify-start items-center w-[1000px] gap-8 mt-[6rem] flex-wrap md:flex-nowrap	">
-                <Image className="border-8 border-gray-900 rounded-xl shadow" src={viewableLink} alt="" width={500} height={200} />
-                {<MintForm contract_address={params?.id} />}
+            <div className="flex justify-start items-center max-w-[1200px] gap-8 mt-[6rem] flex-wrap md:flex-nowrap	">
+                <Image className="border-8 border-gray-900 rounded-xl shadow" src={viewableLink} alt="" width={800} height={200} />
+                <div className="flex flex-col justify-center item-center w-[815px] gap-2">
+                    <MintForm contract_address={params?.id} />
+                </div>
             </div>
         </main>
     )

@@ -35,6 +35,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Loader2 } from 'lucide-react';
+import { Skeleton } from "@/components/ui/skeleton"
 
 const FormSchema = z.object({
     amount: z.string(),
@@ -125,14 +126,18 @@ export default function MintForm({ contract_address }: { contract_address: strin
 
     // if (!tokenSupplyData?.displayValue) {
     //     return (
-    //         <div className="flex flex-col justify-center items-center">
-    //             <Icons.spinner className="h-4 w-4 animate-spin" />
+    //         <div className="flex flex-col justify-center item-center w-[full] gap-2">
+    //             {/* <Icons.spinner className="h-4 w-4 animate-spin" /> */}
+    //             <div className="space-y-2">
+    //                 <Skeleton className="h-4 w-[250px]" />
+    //                 <Skeleton className="h-4 w-[200px]" />
+    //             </div>
     //         </div>
     //     )
     // }
 
     return (
-        <div className="flex flex-col justify-center item-center w-[515px] gap-2">
+        <div className="flex flex-col justify-center item-center w-[full] gap-2">
             <div className="flex gap-3">
                 <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
                     {tokenInfo?.[0]?.name}
@@ -141,12 +146,16 @@ export default function MintForm({ contract_address }: { contract_address: strin
                     {tokenInfo?.[0]?.symbol}
                 </p>
             </div>
-            <p className="leading-7 my-4">
+            <div className="my-4 flex flex-col gap-3">
+                <Label>Contract Address</Label>
+                <Input value={contract_address} />
+            </div>
+            <p className="leading-7 mt-2 mb-4">
                 {tokenInfo?.[0]?.description}
             </p>
             {/* <div className="flex items-center w-full justify-start gap-2">Your Balance: {tokenBalanceData?.displayValue ? tokenBalanceData?.displayValue + " " + tokenBalanceData?.symbol : <Skeleton className="h-3.5 w-[250px]" />} </div> */}
             <div className="flex items-center w-full gap-2">
-                {tokenSupplyData?.displayValue + "/" + phases?.[0]?.total_supply}
+                {tokenSupplyData?.displayValue ? tokenSupplyData?.displayValue + "/" + phases?.[0]?.total_supply : <Skeleton className="h-4 w-[250px]" />}
             </div>
             <div>
                 <TooltipProvider>
