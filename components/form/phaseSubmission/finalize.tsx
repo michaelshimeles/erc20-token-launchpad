@@ -29,14 +29,12 @@ export default function Finalize({ contract_address }: any) {
             </div>)
             ) : <p className="font-medium">Please configure your phase(s)</p>}
             <div className="pt-4">
-                <Button onClick={async () => {
+                <Button disabled={isLoading} onClick={async () => {
 
                     let totalSupply = 0
                     phases?.[0]?.phases_info?.map((info: any) => (
                         totalSupply += Number(info?.maxClaimableSupply)
                     ));
-
-
 
                     const result = phases?.[0]?.phases_info?.map((info: any) => ({
                         ...info,

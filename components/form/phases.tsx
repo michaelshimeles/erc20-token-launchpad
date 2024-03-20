@@ -35,7 +35,7 @@ export function Phases({ contract_address }: any) {
                     <TabsList className="w-full">
                         <TabsTrigger className="w-full" value="create">Create Phase</TabsTrigger>
                         <TabsTrigger disabled={!phases?.[0]?.phases?.length} className="w-full" value="setup">Setup Phase</TabsTrigger>
-                        <TabsTrigger disabled={!phases?.[0]?.phases_info?.length} className="w-full" value="final">Finalize</TabsTrigger>
+                        <TabsTrigger disabled={!phases?.[0]?.phases?.length} className="w-full" value="final">Finalize</TabsTrigger>
                     </TabsList>
                     <TabsContent value="create">
                         <CreatePhase contract_address={contract_address} />

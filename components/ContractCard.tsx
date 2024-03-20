@@ -20,8 +20,9 @@ export default function ContractCard() {
     const { data } = useGetAddress(address!)
 
     return (
-        <div className="flex flex-col justify-center items-start w-full mt-8">
-            {data?.length > 0 && <h2 className="mt-10 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight transition-colors first:mt-0 w-full">
+        <div className="flex flex-col justify-center items-start w-[80%] mt-8 ">
+            {data?.length > 0 &&
+            <h2 className="mt-10 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight transition-colors first:mt-0 w-full">
                 ERC-20 Token(s)
             </h2>}
             <div className='flex justify-start items-center w-full mt-9 gap-3 flex-wrap'>

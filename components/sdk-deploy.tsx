@@ -30,8 +30,6 @@ const MintFormSchema = z.object({
     description: z.string(),
     image: z.any(),
     primary_sale_recipient: z.string(),
-    // platform_fees_recipient: z.string(),
-    // platform_fees_percentage: z.string(),
 })
 
 type MintFormInput = z.infer<typeof MintFormSchema>
@@ -72,8 +70,6 @@ export default function SdkDeploy({ }) {
             symbol,
             description,
             primary_sale_recipient,
-            // platform_fees_recipient = "0xBE97F922f2293e0601ff7C30c101F29fFC309084",
-            // platform_fees_percentage = 5,
         } = data
 
         try {
