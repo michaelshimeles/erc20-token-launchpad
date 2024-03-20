@@ -15,7 +15,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
     return (
 
         <ThirdwebProvider
-            activeChain="base"
+            activeChain="base-sepolia-testnet"
             clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID}
             locale={en()}
             // signer={}
