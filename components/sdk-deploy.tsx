@@ -28,8 +28,8 @@ const MintFormSchema = z.object({
     name: z.string(),
     symbol: z.string(),
     description: z.string(),
-    image: z.any()
-    // primary_sale_recipient: z.string(),
+    image: z.any(),
+    primary_sale_recipient: z.string(),
     // platform_fees_recipient: z.string(),
     // platform_fees_percentage: z.string(),
 })
@@ -71,7 +71,7 @@ export default function SdkDeploy({ }) {
         const { name,
             symbol,
             description,
-            // primary_sale_recipient,
+            primary_sale_recipient,
             // platform_fees_recipient,
             // platform_fees_percentage,
         } = data
@@ -80,7 +80,7 @@ export default function SdkDeploy({ }) {
 
             const deployedAddress = sdk?.deployer.deployTokenDrop({
                 name,
-                // primary_sale_recipient,
+                primary_sale_recipient,
                 symbol,
                 description,
             });
@@ -148,6 +148,11 @@ export default function SdkDeploy({ }) {
                             <Label>Description</Label>
                             <Textarea {...register("description", { required: true })} placeholder="Jesus Christ is The Way, The Truth and The Life" />
                             {errors?.description?.message && <p className="text-red-500 text-sm">{errors.description.message}</p>}
+                        </div>
+                        <div className="flex flex-col gap-2 justify-center items-start w-full">
+                            <Label>Primary Sale Recipient</Label>
+                            <Input {...register("primary_sale_recipient", { required: true })} placeholder="0xBE97F922f2293e0601ff7C30c101F29fFC309084" />
+                            {errors?.primary_sale_recipient?.message && <p className="text-red-500 text-sm">{errors.primary_sale_recipient.message}</p>}
                         </div>
                         <div className="flex flex-col gap-2 justify-center items-start w-full">
                             <Label htmlFor="picture">Token Image</Label>
