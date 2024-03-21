@@ -119,7 +119,7 @@ export default function MintForm({ contract_address }: { contract_address: strin
 
     return (
         <div className="flex flex-col justify-center item-center w-full gap-2">
-            <div className="flex gap-3">
+            <div className="flex gap-3 w-full">
                 <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
                     {tokenInfo?.[0]?.name}
                 </h1>

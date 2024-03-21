@@ -14,8 +14,10 @@ export default async function MintPage({ params }: { params: { id: string } }) {
     return (
         <main className="flex min-h-screen flex-col items-center gap-5 p-10">
             <div className="flex justify-start items-center max-w-[1200px] gap-8 mt-[6rem] flex-wrap md:flex-nowrap	">
-                <Image className="border-8 border-gray-900 rounded-xl shadow" src={viewableLink} alt="" width={800} height={200} />
-                <div className="flex flex-col justify-center item-center w-full gap-2">
+                <div className="w-[50%]">
+                    <Image className="border-8 border-gray-900 rounded-xl shadow" src={viewableLink} alt="" width={800} height={200} />
+                </div>
+                <div className="flex flex-col justify-center item-center w-[50%] gap-2">
                     <MintForm contract_address={params?.id} />
                 </div>
             </div>
