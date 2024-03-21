@@ -63,9 +63,6 @@ export default function MintForm({ contract_address }: { contract_address: strin
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
-        defaultValues: {
-            amount: "0"
-        },
     })
 
     const { data: phases } = useGetPhases(contract_address)
@@ -76,11 +73,7 @@ export default function MintForm({ contract_address }: { contract_address: strin
 
     const { data: tokenBalanceData, isLoading: tokenBalanceisLoading, error: tokenBalanceError } = useTokenBalance(contract, address);
 
-    // console.log('tokenBalanceData', tokenBalanceData)
-
     const { data: claimConditions } = useClaimConditions(contract);
-
-    // console.log('claimConditions', claimConditions)
 
     const { data: tokenSupplyData, isLoading: tokenDataIsLoading, error: tokenDataError } = useTokenSupply(contract);
 
@@ -124,21 +117,9 @@ export default function MintForm({ contract_address }: { contract_address: strin
 
     const currentTime = new Date()
 
-    // if (!tokenSupplyData?.displayValue) {
-    //     return (
-    //         <div className="flex flex-col justify-center item-center w-[full] gap-2">
-    //             {/* <Icons.spinner className="h-4 w-4 animate-spin" /> */}
-    //             <div className="space-y-2">
-    //                 <Skeleton className="h-4 w-[250px]" />
-    //                 <Skeleton className="h-4 w-[200px]" />
-    //             </div>
-    //         </div>
-    //     )
-    // }
-
     return (
-        <div className="flex flex-col justify-center item-center w-[full] gap-2">
-            <div className="flex gap-3">
+        <div className="flex flex-col justify-center item-center w-full gap-2">
+            <div className="flex gap-3 w-full">
                 <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
                     {tokenInfo?.[0]?.name}
                 </h1>
@@ -153,7 +134,6 @@ export default function MintForm({ contract_address }: { contract_address: strin
             <p className="leading-7 mt-2 mb-4">
                 {tokenInfo?.[0]?.description}
             </p>
-            {/* <div className="flex items-center w-full justify-start gap-2">Your Balance: {tokenBalanceData?.displayValue ? tokenBalanceData?.displayValue + " " + tokenBalanceData?.symbol : <Skeleton className="h-3.5 w-[250px]" />} </div> */}
             <div className="flex items-center w-full gap-2">
                 {tokenSupplyData?.displayValue ? tokenSupplyData?.displayValue + "/" + phases?.[0]?.total_supply : <Skeleton className="h-4 w-[250px]" />}
             </div>
@@ -224,9 +204,6 @@ export default function MintForm({ contract_address }: { contract_address: strin
                                         <Input placeholder="1000" {...field} />
                                     </div>
                                 </FormControl>
-                                {/* <FormDescription>
-                                    Mint phases:
-                                </FormDescription> */}
                                 <FormMessage />
                             </FormItem>
                         )}
